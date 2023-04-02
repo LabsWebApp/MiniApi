@@ -10,6 +10,9 @@ public class UserRepository : IUserRepository
 
     public Task<List<User>> GetUsersAsync(string name) =>
         _context.Users.Where(u => u.Name.ToLower().Contains(name.ToLower())).ToListAsync();
+    
+    public Task<List<User>> GetUsersAsync(NumberInfo info) =>
+        _context.Users.Where(u => u.Age == info.Age && Math.Abs(u.Ratio - info.Ratio) < 0.0001).ToListAsync();
 
     public async Task<User?> GetUserAsync(int id) => await _context.Users.FindAsync(id);
 

@@ -20,7 +20,8 @@ if (app.Environment.IsDevelopment())
 }
 
 app.MapGet("/users", async (IUserRepository repo) => Results
-        .Ok(await repo.GetUsersAsync()))
+     //   .Ok(await repo.GetUsersAsync()))
+        .Extensions.Xml(await repo.GetUsersAsync()))
     .Produces<List<User>>(StatusCodes.Status200OK)
     .WithName("AllUsers")
     .WithTags("Getters");
@@ -32,17 +33,27 @@ app.MapGet("/users/{Id}", async (int id, IUserRepository repo) => Results
     .Produces<User>()
     .WithName("User")
     .WithTags("Getters");
+//.ExcludeFromDescription(); 
 
 app.MapGet("/users/search/name/{query}",
         async (string query, IUserRepository repository) =>
             await repository.GetUsersAsync(query) is {} users && users.Any()
                 ? Results.Ok(users)
                 : Results.NotFound(Array.Empty<User>()))
-    .Produces<List<User>>(StatusCodes.Status200OK)
+    .Produces<List<User>>()
     .Produces(StatusCodes.Status404NotFound)
     .WithName("SearchUsers")
     .WithTags("Getters");
-    //.ExcludeFromDescription();
+
+app.MapGet("/users/search/numbers/{query}",
+        async (NumberInfo query, IUserRepository repository) =>
+            await repository.GetUsersAsync(query) is { } users && users.Any()
+                ? Results.Ok(users)
+                : Results.NotFound(Array.Empty<User>()))
+    .Produces<List<User>>()
+    .Produces(StatusCodes.Status404NotFound)
+    .ExcludeFromDescription();
+
 
 app.MapPost("/users", async ([FromBody] User user, IUserRepository repo) =>
 {
