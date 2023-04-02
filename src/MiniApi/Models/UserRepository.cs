@@ -8,6 +8,9 @@ public class UserRepository : IUserRepository
 
     public Task<List<User>> GetUsersAsync() => _context.Users.ToListAsync();
 
+    public Task<List<User>> GetUsersAsync(string name) =>
+        _context.Users.Where(u => u.Name.ToLower().Contains(name.ToLower())).ToListAsync();
+
     public async Task<User?> GetUserAsync(int id) => await _context.Users.FindAsync(id);
 
     public async Task CreateUserAsync(User user) => await _context.Users.AddAsync(user);
