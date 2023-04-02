@@ -1,0 +1,32 @@
+1. Creating: 
+>dotnet new web -n MiniApi
+>dotnet run
+
+2. Установка httprepl
+>dotnet tool install -g microsoft.dotnet-httprepl
+...
+>httprepl 
+(Disconnected)> connect http://localhost:5180
+http://localhost:5180/> get
+
+3. Test
+http://localhost:5180/> get users
+
+pref set editor.command.default "C:\Program Files\Notepad++\notepad++.exe"
+								"C:\Program Files\WindowsApps\Microsoft.WindowsNotepad_11.2302.26.0_x64__8wekyb3d8bbwe\Notepad\Notepad.exe"
+
+http://localhost:5180/> post user
+{
+	"id": 1,
+	"name": "Вася",
+	"age": 16,
+	"ratio": 1.5
+}
+
+http://localhost:5180/> put users
+{
+	"id": 1,
+	"name": "Маша",
+	"age": 20,
+	"ratio": 1.8
+}
