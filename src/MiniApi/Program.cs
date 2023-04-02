@@ -20,7 +20,7 @@ app.MapGet("/users/{Id}", async (int id, IUserRepository repo) =>
         ? Results.Ok(user)
         : Results.NotFound());
 
-app.MapPost("/users", async (User user, IUserRepository repo) =>
+app.MapPost("/users", async ([FromBody] User user, IUserRepository repo) =>
 {
     await repo.CreateUserAsync(user);
     await repo.SaveAsync();
