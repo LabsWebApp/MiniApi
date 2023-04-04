@@ -1,9 +1,9 @@
 namespace MiniApi.Models;
 
-public class User
+public class Event
 {
     public int Id { get; set; }
     public string Name { get; set; } = string.Empty;
-    public int Age { get; set; }
+    public int Code { get; set; }
     public double Ratio { get; set; }
 }

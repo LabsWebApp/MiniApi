@@ -6,9 +6,28 @@ builder.Services.AddSwaggerGen();
 builder.Services.AddDbContext<ApiDb>(options =>
     options.UseSqlite(builder.Configuration.GetConnectionString("Sqlite")));
 
-builder.Services.AddScoped<IUserRepository, UserRepository>();
-
+builder.Services.AddScoped<IEventRepository, EventRepository>();
+builder.Services.AddSingleton<ITokenService, TokenService>();
+builder.Services.AddSingleton<IUserRepository, UserRepository>();
+builder.Services.AddAuthorization();
+builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+    .AddJwtBearer(options =>
+    {
+        options.TokenValidationParameters = new()
+        {
+            ValidateIssuer = true,
+            ValidateAudience = true,
+            ValidateLifetime = true,
+            ValidateIssuerSigningKey = true,
+            ValidIssuer = builder.Configuration["Jwt:Issuer"],
+            ValidAudience = builder.Configuration["Jwt:Audience"],
+            IssuerSigningKey = new SymmetricSecurityKey(
+                Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"]!))
+        };
+    });
 var app = builder.Build();
+app.UseAuthentication();
+app.UseAuthorization();
 
 if (app.Environment.IsDevelopment())
 {
@@ -19,67 +38,86 @@ if (app.Environment.IsDevelopment())
     db.Database.EnsureCreated();
 }
 
-app.MapGet("/users", async (IUserRepository repo) => Results
-     //   .Ok(await repo.GetUsersAsync()))
-        .Extensions.Xml(await repo.GetUsersAsync()))
-    .Produces<List<User>>(StatusCodes.Status200OK)
-    .WithName("AllUsers")
+app.MapGet("/events", [AllowAnonymous] async (IEventRepository repo) => Results
+     //   .Ok(await repo.GetEventsAsync()))
+        .Extensions.Xml(await repo.GetEventsAsync()))
+    .Produces<List<Event>>()
+    .WithName("AllEvents")
     .WithTags("Getters");
 
-app.MapGet("/users/{Id}", async (int id, IUserRepository repo) => Results
-        .Ok(await repo.GetUserAsync(id)) is { } user
-        ? Results.Ok(user)
+app.MapGet("/login", [AllowAnonymous] async (HttpContext context,
+    ITokenService tokenService, IUserRepository userRepository) => await Task.Run(() => 
+{
+    // Так нельзя, для теста!!!
+    User user = new()
+    {
+        Name = context.Request.Query["username"]!,
+        Password = context.Request.Query["password"]!
+    };
+    var userDto = userRepository.GetUser(user);
+    //if (userDto == null) return Results.Unauthorized();
+    var token = tokenService.BuildToken(
+        builder.Configuration["Jwt:Key"]!,
+        builder.Configuration["Jwt:Issuer"]!, userDto);
+    return Results.Ok(token);
+}));
+
+app.MapGet("/events/{Id}", [AllowAnonymous] async (int id, IEventRepository repo) => Results
+        .Ok(await repo.GetEventAsync(id)) is { } @event
+        ? Results.Ok(@event)
         : Results.NotFound())
-    .Produces<User>()
-    .WithName("User")
+    .Produces<Event>()
+    .WithName("Event")
     .WithTags("Getters");
 //.ExcludeFromDescription(); 
 
-app.MapGet("/users/search/name/{query}",
-        async (string query, IUserRepository repository) =>
-            await repository.GetUsersAsync(query) is {} users && users.Any()
-                ? Results.Ok(users)
-                : Results.NotFound(Array.Empty<User>()))
-    .Produces<List<User>>()
+app.MapGet("/events/search/name/{query}",
+        [AllowAnonymous] async (string query, IEventRepository repository) =>
+            await repository.GetEventsAsync(query) is {} events && events.Any()
+                ? Results.Ok(events)
+                : Results.NotFound(Array.Empty<Event>()))
+    .Produces<List<Event>>()
     .Produces(StatusCodes.Status404NotFound)
-    .WithName("SearchUsers")
+    .WithName("SearchEvents")
     .WithTags("Getters");
 
-app.MapGet("/users/search/numbers/{query}",
-        async (NumberInfo query, IUserRepository repository) =>
-            await repository.GetUsersAsync(query) is { } users && users.Any()
-                ? Results.Ok(users)
-                : Results.NotFound(Array.Empty<User>()))
-    .Produces<List<User>>()
+app.MapGet("/events/search/numbers/{query}",
+        [AllowAnonymous] async (NumberInfo query, IEventRepository repository) =>
+            await repository.GetEventsAsync(query) is { } events && events.Any()
+                ? Results.Ok(events)
+                : Results.NotFound(Array.Empty<Event>()))
+    .Produces<List<Event>>()
     .Produces(StatusCodes.Status404NotFound)
     .ExcludeFromDescription();
 
 
-app.MapPost("/users", async ([FromBody] User user, IUserRepository repo) =>
+app.MapPost("/events", 
+        [AllowAnonymous] async ([FromBody] Event @event, IEventRepository repo) =>
 {
-    await repo.CreateUserAsync(user);
+    await repo.CreateEventAsync(@event);
     await repo.SaveAsync();
-    return Results.Created($"/users/{user.Id}", user);
-}).Accepts<User>("application/json")
-    .Produces<User>(StatusCodes.Status201Created)
-    .WithName("CreateUser")
+    return Results.Created($"/events/{@event.Id}", @event);
+}).Accepts<Event>("application/json")
+    .Produces<Event>(StatusCodes.Status201Created)
+    .WithName("CreateEvent")
     .WithTags("Creators");
 
-app.MapPut("/users", async ([FromBody] User user, IUserRepository repo) =>
+app.MapPut("/events", [AllowAnonymous] async ([FromBody] Event @event, IEventRepository repo) =>
 {
-    await repo.UpdateUserAsync(user);
+    await repo.UpdateEventAsync(@event);
     await repo.SaveAsync();
     return Results.NoContent();
-}).Accepts<User>("application/json")
-    .WithName("UpdateUser")
+}).Accepts<Event>("application/json")
+    .WithName("UpdateEvent")
     .WithTags("Updaters");
 
-app.MapDelete("/users/{Id}", async (int id, IUserRepository repo) =>
+app.MapDelete("/events/{Id}", 
+        [AllowAnonymous] async (int id, IEventRepository repo) =>
 {
-    await repo.DeleteUserAsync(id);
+    await repo.DeleteEventAsync(id);
     await repo.SaveAsync();
     return Results.NoContent();
-}).WithName("DeleteUser")
+}).WithName("DeleteEvent")
     .WithTags("Deleters");
 
 // Конвейер обработки запроса - middleware 
