@@ -1,4 +1,6 @@
-﻿namespace MiniApi.Models;
+﻿using MiniApi.Models.Entities.Events;
+
+namespace MiniApi.Models.Repositories;
 
 public interface IEventRepository : IDisposable
 {

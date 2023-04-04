@@ -1,4 +1,4 @@
-﻿namespace MiniApi;
+﻿namespace MiniApi.Models.Entities.Events;
 
 public record NumberInfo(int Age, double Ratio)
 {
@@ -10,7 +10,7 @@ public record NumberInfo(int Age, double Ratio)
         if (splitArray.Length != 2) return false;
 
         if (!int.TryParse(splitArray[0], out var age)) return false;
-        if (!double.TryParse(splitArray[1], NumberStyles.Any, CultureInfo.InvariantCulture, out var ratio)) 
+        if (!double.TryParse(splitArray[1], NumberStyles.Any, CultureInfo.InvariantCulture, out var ratio))
             return false;
 
         info = new NumberInfo(age, ratio);

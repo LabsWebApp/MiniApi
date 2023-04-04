@@ -1,4 +1,4 @@
-namespace MiniApi.Models;
+namespace MiniApi.Models.Entities.Events;
 
 public class Event
 {

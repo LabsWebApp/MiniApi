@@ -1,10 +1,8 @@
-﻿using System.IdentityModel.Tokens.Jwt;
-
-namespace MiniApi.Models;
+﻿namespace MiniApi.Models.EF.Repositories;
 
 public class TokenService : ITokenService
 {
-    private readonly TimeSpan _expiryDuration = TimeSpan.FromMinutes(30);
+    private readonly TimeSpan _expiryDuration = new(0, 30, 0);
     public string BuildToken(string key, string issuer, UserDto user)
     {
         var claims = new[]

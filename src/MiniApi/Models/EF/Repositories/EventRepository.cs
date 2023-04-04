@@ -1,4 +1,6 @@
-﻿namespace MiniApi.Models;
+﻿using MiniApi.Models.Entities.Events;
+
+namespace MiniApi.Models.EF.Repositories;
 
 public class EventRepository : IEventRepository
 {
@@ -10,7 +12,7 @@ public class EventRepository : IEventRepository
 
     public Task<List<Event>> GetEventsAsync(string name) =>
         _context.Events.Where(u => u.Name.ToLower().Contains(name.ToLower())).ToListAsync();
-    
+
     public Task<List<Event>> GetEventsAsync(NumberInfo info) =>
         _context.Events.Where(u => u.Code == info.Age && Math.Abs(u.Ratio - info.Ratio) < 0.0001).ToListAsync();
 

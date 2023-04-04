@@ -1,4 +1,4 @@
-﻿namespace MiniApi.Auth;
+﻿namespace MiniApi.Models.Entities;
 
 public record UserDto(string Name, string Password);
 

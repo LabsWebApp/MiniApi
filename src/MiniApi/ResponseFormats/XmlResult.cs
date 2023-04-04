@@ -1,10 +1,10 @@
 using System.Xml.Serialization;
 
-namespace MiniApi;
+namespace MiniApi.ResponseFormats;
 
 public class XmlResult<T> : IResult
 {
-    private static readonly XmlSerializer Serializer = new (typeof(T));
+    private static readonly XmlSerializer Serializer = new(typeof(T));
     private readonly T _result;
 
     public XmlResult(T result) => _result = result;

@@ -1,4 +1,4 @@
-﻿namespace MiniApi.Models;
+﻿namespace MiniApi.Models.Repositories;
 
 public interface IUserRepository
 {
