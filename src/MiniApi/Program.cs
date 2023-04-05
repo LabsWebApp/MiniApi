@@ -8,6 +8,15 @@ var app = builder.Build();
 
 Configure(app);
 
+//app.MapGet("/events/search/numbers/{query}",
+//        async (NumberInfo query, IEventRepository repository) =>
+//            await repository.GetEventsAsync(query) is { } events && events.Any()
+//                ? Results.Ok(events)
+//                : Results.NotFound(Array.Empty<User>()))
+//    .Produces<List<User>>()
+//    .Produces(StatusCodes.Status404NotFound)
+//    .ExcludeFromDescription();
+
 foreach (var item in app.Services.GetServices<IApi>()) item.Register(app);
 
 app.Run();
