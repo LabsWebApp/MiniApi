@@ -1,6 +1,4 @@
-using MiniApi.Apis;
-using MiniApi.Models.EF;
-using MiniApi.Models.EF.Repositories;
+using MiniApi.Models.Entities.Events;
 
 var builder = WebApplication.CreateBuilder(args);
 
