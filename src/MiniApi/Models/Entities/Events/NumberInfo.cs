@@ -1,19 +1,19 @@
 ﻿namespace MiniApi.Models.Entities.Events;
 
-public record NumberInfo(int Age, double Ratio)
+public record NumberInfo(int Code, double Ratio)
 {
     public static bool TryParse(string input, out NumberInfo? info)
     {
         info = default;
-        var splitArray = input.Split(',', 2);
+        var splitArray = input.Split('|', 2);
 
         if (splitArray.Length != 2) return false;
 
-        if (!int.TryParse(splitArray[0], out var age)) return false;
+        if (!int.TryParse(splitArray[0], out var code)) return false;
         if (!double.TryParse(splitArray[1], NumberStyles.Any, CultureInfo.InvariantCulture, out var ratio))
             return false;
 
-        info = new NumberInfo(age, ratio);
+        info = new NumberInfo(code, ratio);
         return true;
     }
 

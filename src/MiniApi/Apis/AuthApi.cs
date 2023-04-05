@@ -1,6 +1,4 @@
-﻿using MiniApi.Models.EF.Repositories;
-
-namespace MiniApi.Apis;
+﻿namespace MiniApi.Apis;
 
 public class AuthApi : IApi
 {

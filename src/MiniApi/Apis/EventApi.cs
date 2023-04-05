@@ -20,11 +20,11 @@ public class EventApi : IApi
         app.MapGet("/events/search/name/{query}", SearchByName)
             .Produces<List<Event>>()
             .Produces(StatusCodes.Status404NotFound)
-            .WithName("SearchEvents")
+            .WithName("SearchByNameEvents")
             .WithTags("Getters");
 
-        app.MapGet("/events/search/numbers/{query}", SearchByNumberInfo)
-            .Produces<List<Event>>()
+        app.MapGet("/events/search/numbers/{query}", SearchByInfo)
+            .Produces<List<User>>()
             .Produces(StatusCodes.Status404NotFound)
             .ExcludeFromDescription();
 
@@ -44,9 +44,21 @@ public class EventApi : IApi
             .WithTags("Deleters");
     }
 
-    [Authorize]
+    [AllowAnonymous]
     private async Task<IResult> Get(IEventRepository repository) =>
         Results.Extensions.Xml(await repository.GetEventsAsync());
+
+    [AllowAnonymous]
+    private async Task<IResult> SearchByName(string query, IEventRepository repository) =>
+        await repository.GetEventsAsync(query) is { } events
+            ? Results.Ok(events)
+            : Results.NotFound(Array.Empty<Event>());
+
+    [AllowAnonymous]
+    private async Task<IResult> SearchByInfo(NumberInfo query, IEventRepository repository) =>
+        await repository.GetEventsAsync(query) is { } events
+            ? Results.Ok(events)
+            : Results.NotFound(Array.Empty<Event>());
 
     [AllowAnonymous]
     private async Task<IResult> GetById(int id, IEventRepository repository) =>
@@ -77,17 +89,4 @@ public class EventApi : IApi
         await repository.SaveAsync();
         return Results.NoContent();
     }
-
-    [AllowAnonymous]
-    private async Task<IResult> SearchByName(string query, IEventRepository repository) =>
-        await repository.GetEventsAsync(query) is {} events
-            ? Results.Ok(events)
-            : Results.NotFound(Array.Empty<Event>());
-
-    [AllowAnonymous]
-    private async Task<IResult> SearchByNumberInfo(NumberInfo info,
-        IEventRepository repository) =>
-        await repository.GetEventsAsync(info) is { } events
-            ? Results.Ok(events)
-            : Results.NotFound(Array.Empty<Event>());
 }
