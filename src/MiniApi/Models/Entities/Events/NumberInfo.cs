@@ -1,6 +1,6 @@
 ﻿namespace MiniApi.Models.Entities.Events;
 
-public record NumberInfo(int Code, double Ratio)
+public record struct NumberInfo(int Code, double Ratio)
 {
     public static bool TryParse(string input, out NumberInfo? info)
     {

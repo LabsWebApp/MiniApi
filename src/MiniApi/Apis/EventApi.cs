@@ -26,7 +26,7 @@ public class EventApi : IApi
         app.MapGet("/events/search/numbers/{query}", SearchByInfo)
             .Produces<List<User>>()
             .Produces(StatusCodes.Status404NotFound)
-            .ExcludeFromDescription();
+            /*.ExcludeFromDescription()*/;
 
         app.MapPost("/events",Post)
             .Accepts<Event>("application/json")
